@@ -11,6 +11,7 @@ beforeEach(() => {
   
   describe("logo check", function () {
     it("TC1 logo verification", () => {
+      //Jelena: This can be written in one line: cy.get('.header h1').should('be.visible').should('have.text', 'todos');
       cy.get(".header h1").should("be.visible");
       cy.get(".header h1").should("have.text", "todos");
     });
