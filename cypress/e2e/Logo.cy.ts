@@ -18,19 +18,20 @@ beforeEach(() => {
   
     //Strahinja - You should write test name as actual action for example:
     //Strahinja - TC3 - Item is added to (the TO DO) list
+    //Jelena: Since every test title starts with TC, here missing TC2, but it is hard to maintain when there are a lot of tests, so it is enough to have just a test title without numbering
     it("TC3 Verify if item can be added successfully", () => {
       //one item added:
       cy.get(".new-todo").type(randomName + "{enter}");
       cy.get(".view label")
         .should("include.text", randomName)
         .should("exist")
-        .should("be.visible");
+        .should("be.visible"); //Jelena: Too much assertion (three times used should) and duplicated code (explanation below the test)
       //Strahinja - here you are missing actual locator
       cy.contains("Active").click();
       cy.get(".view label")
         .should("include.text", randomName)
         .should("exist")
-        .should("be.visible");
+        .should("be.visible"); //Jelena: Too much assertion (three times used should) and duplicated code (explanation below the test)
       //Strahinja - here you are missing actual locator
       cy.contains("Completed").click();
       cy.get(".view label").should("not.exist");
@@ -45,12 +46,16 @@ beforeEach(() => {
   
       cy.get(".todo-list li").should("have.length", n + 1);
       cy.contains("Active").click();
-      cy.get(".todo-list li").should("have.length", n + 1);
+      cy.get(".todo-list li").should("have.length", n + 1); //Jelena: Same implementation as two lines above (duplicated code - explanation below the test)
       cy.contains("Completed").click();
-      cy.get(".view label").should("not.exist");
+      cy.get(".view label").should("not.exist"); //Jelena: Duplicated code (more info below the test)
       cy.get(".todo-count strong").should("have.text", n + 1);
     });
-  
+    /* Jelena: Explanation for "Too much assertion" => when asserting one element, it is enough to assert that is visible (or that exists) and if it's necessary to assert that contains some text.
+       Explanation for "Duplicated code" => those three lines that are marked as duplicated, that means that when you need to change something in code, you'll need to search every line and change it manually, 
+       so the best practice is to put code that will be used more times into const method (somewhere at the top of the file, or create helper folder with exported helper methods) and then call that method whenever you need in tests.*/
+    
+    //Jelena: Missing TC4
     it("TC5 No limitation for number of characters", function () {
       cy.get(".new-todo").type(longName + "{enter}", { timeout: 50000 });
   
@@ -61,6 +66,7 @@ beforeEach(() => {
     });
   
     it("TC6 Special characters and numbers", function () {
+      //Jelena: When typing on the same element, commands can be placed in one line, something like this: cy.get('.new-todo').type(specCharNum, 'enter')
       cy.get(".new-todo").type(specCharNum);
       cy.get(".new-todo").type("{enter}");
       cy.get(".view label").should("have.text", specCharNum);
@@ -147,18 +153,19 @@ beforeEach(() => {
   
     it("TC12 Clear completed button", function () {
       for (var n = 1; n < 6; n++) {
+         //Jelena: Code below can be written in one line
         cy.get(".new-todo").type("name" + n);
         cy.get(".new-todo").type("{enter}");
       }
       cy.get("button.clear-completed").should("not.exist");
       cy.get(".view input").first().click();
       cy.get("button.clear-completed").should("exist").and("be.visible");
-      cy.get("button.clear-completed").click();
+      cy.get("button.clear-completed").click(); //Jelena: click() can be added in the line above after asserting "be.visible"
       cy.get("button.clear-completed").should("not.exist");
       cy.get(".view input").click({ multiple: true });
       cy.get("button.clear-completed").should("exist").and("be.visible");
       cy.get("button.clear-completed").click();
-      cy.get("button.clear-completed").should("not.exist");
+      cy.get("button.clear-completed").should("not.exist"); //Jelena: The last three lines => Duplicated code.
     });
   
     it("TC13 Delete items by clicking on X button", function () {
@@ -174,6 +181,7 @@ beforeEach(() => {
   //Strahinja - even better would be to move this to a separate file and export it from there
   //          - and import it here in this file - that can be your taks
   
+  //Jelena: Functions and const variables can be placed at the top of this file, also the creation of helper files for functions and importing it in this file is recommended
   function getNumber(str: string) {
     const strippedStr = str.replace(/\D/g, "");
     return Number.parseInt(strippedStr);
